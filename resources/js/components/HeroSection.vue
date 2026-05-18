@@ -29,7 +29,7 @@ defineEmits(['scroll-to'])
 const data = {
   name: 'Luis Soler Valdivia',
   title: 'Full Stack Web Developer',
-  description: 'Construyendo aplicaciones web modernas, escalables y centradas en el usuario con las últimas tecnologías.',
+  description: 'Especializado en plataformas web escalables, soluciones cloud e integración de IA con tecnología de vanguardia.',
   avatar: 'images/LuisGuapo.jpeg', // Cambia por tu foto
 }
 </script>
