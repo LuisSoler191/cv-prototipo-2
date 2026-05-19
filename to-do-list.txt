@@ -15,9 +15,16 @@ Ahora quiero ir poniendo mi propio contenido, sección por sección:
 
 - Cambiar foto. De esto me tengo que ocupar yo (ya lo haré).
 
-- Retocar descripción inicial ya lo haré.
+- Retocar descripción inicial (hecho, pero mejorable).
 
-- Hacerme un currículum como dios manda. Esto va a parte (ya lo haré).
+- Hacerme un currículum como dios manda. Esto va a parte (ya lo haré). Esto merece un apartado entero. Tengo que vibecodearlo hasta obtener un buen prototipo. 
+
+Datos currículum: 
+
+Luis Soler Valdivia
+Número de teléfono: 
+soyls191@gmail.com
+
 
 - Recopilar todas las tecnologías que "domino", y sus iconos. Estaría bien hacer que sean desplegables con una pequeña descripción en cada una.
 php, javascript, java, html, css, sql, swagger, git, docker, ollama, llama.cpp, 
