@@ -126,7 +126,7 @@ const jobs = [
   padding-top: 4px;
 }
 .company-logo {
-  width: 120; height: 56px;
+  width: 132px; height: 56px;
   border-radius: 5px;
   overflow: hidden;
   background: rgba(255,255,255,0.06);
