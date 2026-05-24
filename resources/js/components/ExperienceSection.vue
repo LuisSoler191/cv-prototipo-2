@@ -2,27 +2,48 @@
   <section id="experience" class="experience">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Conoce mi Experiencia</h2>
+        <h2 class="section-title">Experiencia</h2>
         <p class="section-subtitle">Mi trayectoria profesional en el desarrollo web</p>
       </div>
 
-      <div class="experience-grid">
+      <div class="experience-list">
         <div
           v-for="job in jobs"
           :key="job.company"
           class="experience-card glass"
         >
-          <div class="card-image">
-            <img :src="job.logo" :alt="job.company" />
-            <div class="image-overlay"></div>
-          </div>
-          <div class="card-content">
-            <div class="card-header">
-              <h3 class="company">{{ job.company }}</h3>
-              <span class="period">{{ job.period }}</span>
+          <div class="card-aside">
+            <div class="company-logo">
+              <img v-if="job.logo" :src="job.logo" :alt="job.company" />
+              <span v-else class="logo-fallback">{{ job.company[0] }}</span>
             </div>
-            <h4 class="position">{{ job.position }}</h4>
+            <span class="period">{{ job.period }}</span>
+          </div>
+
+          <div class="card-body">
+            <div class="card-header">
+              <h3 class="position">{{ job.position }}</h3>
+              <a v-if="job.url" :href="job.url" target="_blank" rel="noopener" class="company-link">
+                {{ job.company }} · {{ job.location }}
+              </a>
+              <span v-else class="company-name">{{ job.company }} · {{ job.location }}</span>
+            </div>
+
             <p class="description">{{ job.description }}</p>
+
+            <ul v-if="job.highlights" class="highlights">
+              <li v-for="h in job.highlights" :key="h">{{ h }}</li>
+            </ul>
+
+            <div v-if="job.urls" class="production-urls">
+              <span class="urls-label">Proyectos en producción:</span>
+              <div class="urls-list">
+                <a v-for="u in job.urls" :key="u.href" :href="u.href" target="_blank" rel="noopener" class="url-chip">
+                  {{ u.label }}
+                </a>
+              </div>
+            </div>
+
             <div class="technologies">
               <span class="tech-tag" v-for="tag in job.tags" :key="tag">{{ tag }}</span>
             </div>
@@ -34,31 +55,27 @@
 </template>
 
 <script setup>
-// Adapta con tu propia experiencia
 const jobs = [
   {
-    company: 'Empresa Actual',
-    period: 'Ene 2024 – Presente',
-    position: 'Full Stack Developer',
-    description: 'Desarrollo de aplicaciones web con Laravel y Vue 3. Diseño de APIs RESTful y arquitectura de sistemas escalables para clientes enterprise.',
-    logo: '/images/companies/empresa.png',
-    tags: ['Laravel', 'Vue 3', 'MySQL', 'Docker'],
-  },
-  {
-    company: 'Empresa Anterior',
-    period: 'Mar 2022 – Dic 2023',
-    position: 'Backend Developer',
-    description: 'Mantenimiento y evolución de plataforma e-commerce. Optimización de consultas, integración de pasarelas de pago y desarrollo de microservicios.',
-    logo: '/images/companies/empresa2.png',
-    tags: ['PHP', 'REST API', 'PostgreSQL'],
-  },
-  {
-    company: 'Startup XYZ',
-    period: 'Jun 2020 – Feb 2022',
-    position: 'Frontend Developer',
-    description: 'Implementación de interfaces de usuario modernas y responsivas. Colaboración estrecha con diseño UX y equipos de producto.',
-    logo: '/images/companies/empresa3.png',
-    tags: ['Vue 2', 'Vuetify', 'JavaScript'],
+    company: 'im3dia comunicación',
+    location: 'Albacete',
+    period: 'Mar 2026 – Jun 2026',
+    position: 'Desarrollador Web · Prácticas DAW',
+    logo: '/images/imedia.jpg',
+    url: null,
+    description: 'Desarrollo full-stack en entorno de producción real con Laravel y Vue 2/3 en SPAs con soporte multiidioma. Implementación de módulos completos, documentación de APIs y testing avanzado.',
+    highlights: [
+      'Desarrollo full-stack (Laravel + Vue 2/3) en SPAs con soporte multiidioma',
+      'Implementación de módulos completos full stack sobre paneles de administración',
+      'Documentación de APIs con Swagger / OpenAPI, corrección de bugs y mejoras de eficiencia y seguridad',
+      'Testing avanzado con API testing, Vitest y Playwright; pruebas automatizadas con stack de IA local',
+    ],
+    urls: [
+      { label: 'forestales.net',         href: 'https://forestales.net' },
+      { label: 'sierradelsegura.com',    href: 'https://sierradelsegura.com' },
+      { label: 'lamanchuelarural.com',   href: 'https://lamanchuelarural.com' },
+    ],
+    tags: ['Laravel', 'Vue 2/3', 'Swagger', 'Vitest', 'Playwright', 'MySQL', 'Docker'],
   },
 ]
 </script>
@@ -79,48 +96,108 @@ const jobs = [
 }
 .section-subtitle { font-size: 18px; color: var(--text-secondary); }
 
-.experience-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+.experience-list {
+  display: flex;
+  flex-direction: column;
   gap: 32px;
+  max-width: 900px;
+  margin: 0 auto;
 }
+
 .experience-card {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 40px;
   border-radius: 24px;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
-  cursor: pointer;
+  padding: 36px;
+  transition: all 0.3s ease;
 }
 .experience-card:hover {
-  transform: translateY(-12px);
+  transform: translateY(-4px);
   border-color: rgba(255,255,255,0.2);
-  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.4);
 }
-.experience-card:hover .card-image img { transform: scale(1.1); }
-.experience-card:hover .image-overlay { background: rgba(0,113,227,0.3); }
-.card-image {
-  position: relative;
-  width: 100%; height: 200px;
+
+.card-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding-top: 4px;
+}
+.company-logo {
+  width: 120; height: 56px;
+  border-radius: 5px;
   overflow: hidden;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
 }
-.card-image img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
+.company-logo img { width: 100%; height: 100%; object-fit: contain; }
+.logo-fallback {
+  font-size: 28px; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), #5ac8fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
-.image-overlay {
-  position: absolute; inset: 0;
-  background: rgba(0,0,0,0.3);
-  transition: background 0.4s ease;
+.period {
+  font-size: 13px; font-weight: 500;
+  color: var(--accent);
+  text-align: center;
+  padding: 6px 14px;
+  background: rgba(0,113,227,0.1);
+  border: 1px solid rgba(0,113,227,0.25);
+  border-radius: 10px;
+  white-space: nowrap;
 }
-.card-content { padding: 24px; }
-.card-header {
-  display: flex; justify-content: space-between;
-  align-items: flex-start; margin-bottom: 12px; gap: 16px;
+
+.card-header { margin-bottom: 14px; }
+.position { font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; letter-spacing: -0.02em; }
+.company-link,
+.company-name {
+  font-size: 15px; color: var(--text-secondary); font-weight: 500;
+  text-decoration: none;
 }
-.company { font-size: 20px; font-weight: 600; color: var(--text-primary); flex: 1; }
-.period { font-size: 13px; color: var(--accent); font-weight: 500; white-space: nowrap; }
-.position { font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 12px; }
-.description { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; }
+.company-link { transition: color 0.2s; }
+.company-link:hover { color: var(--accent); }
+
+.description {
+  font-size: 15px; color: var(--text-secondary);
+  line-height: 1.65; margin-bottom: 16px;
+}
+
+.highlights {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 8px;
+  margin-bottom: 20px;
+}
+.highlights li {
+  font-size: 14px; color: var(--text-secondary);
+  line-height: 1.6;
+  padding-left: 18px;
+  position: relative;
+}
+.highlights li::before {
+  content: '▸';
+  position: absolute; left: 0;
+  color: var(--accent);
+}
+
+.production-urls { margin-bottom: 20px; }
+.urls-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: 10px; }
+.urls-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.url-chip {
+  padding: 5px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  font-size: 13px; color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.url-chip:hover { color: var(--accent); border-color: rgba(0,113,227,0.4); }
+
 .technologies { display: flex; flex-wrap: wrap; gap: 8px; }
 .tech-tag {
   padding: 6px 12px;
@@ -133,9 +210,13 @@ const jobs = [
 
 @media (max-width: 768px) {
   .experience { padding: 80px 0; }
-  .section-header { margin-bottom: 48px; }
   .section-title { font-size: 36px; }
-  .section-subtitle { font-size: 16px; }
-  .experience-grid { grid-template-columns: 1fr; gap: 24px; }
+  .experience-card {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 24px;
+  }
+  .card-aside { flex-direction: row; align-items: center; justify-content: flex-start; }
+  .period { white-space: normal; }
 }
 </style>

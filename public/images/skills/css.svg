@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 130" width="120" height="130">
+  <!-- CSS3 official shield shape -->
+  <path d="M10 10 L110 10 L98 110 L60 122 L22 110 Z" fill="#264de4"/>
+  <!-- Highlight side -->
+  <path d="M60 18 L98 18 L87.5 104 L60 115 Z" fill="#2965f1"/>
+  <!-- "CSS" label -->
+  <text x="60" y="75" font-family="'Arial Black', Arial, sans-serif" font-size="30" font-weight="900" fill="white" text-anchor="middle">CSS</text>
+  <!-- White horizontal stripes (simplified) -->
+  <rect x="28" y="40" width="64" height="7" rx="1" fill="white" opacity="0.15"/>
+  <rect x="30" y="52" width="60" height="7" rx="1" fill="white" opacity="0.10"/>
+  <!-- 3 badge, top right -->
+  <rect x="74" y="2" width="38" height="30" rx="8" fill="#ff6b35"/>
+  <text x="93" y="23" font-family="'Arial Black', Arial, sans-serif" font-size="22" font-weight="900" fill="white" text-anchor="middle">3</text>
+</svg>

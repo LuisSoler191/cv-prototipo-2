@@ -14,7 +14,7 @@
           <p class="description">{{ data.description }}</p>
           <div class="header-actions">
             <button class="btn-secondary" @click="$emit('scroll-to', 'projects')">Ver mi trabajo</button>
-            <button class="btn-ghost">Descargar CV</button>
+            <a class="btn-ghost" href="/cv/CV-Luis-Soler.pdf" download>Descargar CV</a>
             <button class="btn-primary" @click="$emit('scroll-to', 'contact')">¡Contáctame!</button>
           </div>
         </div>
@@ -28,9 +28,9 @@ defineEmits(['scroll-to'])
 
 const data = {
   name: 'Luis Soler Valdivia',
-  title: 'Full Stack Web Developer',
-  description: 'Especializado en plataformas web escalables, soluciones cloud e integración de IA con tecnología de vanguardia.',
-  avatar: 'images/LuisGuapo.jpeg', // Cambia por tu foto
+  title: 'Desarrollador Web · Full Stack / Back-End',
+  description: 'Desarrollador web junior con formación en DAW y experiencia práctica en entornos de producción real. Especializado en back-end y full stack con Laravel y Vue.js, con especial interés en la integración de IA local en flujos de trabajo propios.',
+  avatar: '/images/LuisGuapo.jpeg',
 }
 </script>
 
@@ -97,10 +97,11 @@ const data = {
   background-clip: text;
 }
 .title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 500;
   color: var(--accent);
   margin-bottom: 20px;
+  letter-spacing: 0.01em;
 }
 .description {
   font-size: 18px;
@@ -108,8 +109,9 @@ const data = {
   line-height: 1.7;
   margin-bottom: 40px;
 }
-.header-actions { display: flex; gap: 12px; }
-.header-actions button {
+.header-actions { display: flex; gap: 12px; align-items: center; }
+.header-actions button,
+.header-actions a {
   padding: 11px 24px;
   font-size: 15px; font-weight: 500;
   border-radius: 12px;
@@ -117,12 +119,16 @@ const data = {
   letter-spacing: -0.01em;
   border: none;
   cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .btn-primary {
   background: var(--accent);
   color: var(--text-primary);
 }
-.btn-primary:hover { background: var(--accent-hover); transform: scale(1.02);  }
+.btn-primary:hover { background: var(--accent-hover); transform: scale(1.02); }
 .btn-primary:active { transform: scale(0.98); }
 .btn-secondary {
   background: rgba(255,255,255,0.08);
@@ -148,7 +154,7 @@ const data = {
 @media (max-width: 968px) {
   .header-content { flex-direction: column; gap: 48px; text-align: center; }
   .name { font-size: 48px; }
-  .title { font-size: 20px; }
+  .title { font-size: 18px; }
   .description { font-size: 16px; }
   .header-actions { justify-content: center; }
 }
@@ -157,9 +163,10 @@ const data = {
   .profile-image-wrapper { width: 220px; height: 220px; }
   .glow-effect { width: 260px; height: 260px; }
   .name { font-size: 36px; }
-  .title { font-size: 18px; }
+  .title { font-size: 16px; }
   .description { font-size: 15px; }
   .header-actions { flex-direction: column; width: 100%; }
-  .header-actions button { width: 100%; }
+  .header-actions button,
+  .header-actions a { width: 100%; }
 }
 </style>

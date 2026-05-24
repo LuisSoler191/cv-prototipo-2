@@ -2,8 +2,8 @@
   <section id="education" class="education">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Educación</h2>
-        <p class="section-subtitle">Mi formación académica y profesional</p>
+        <h2 class="section-title">Formación</h2>
+        <p class="section-subtitle">Mi trayectoria académica y certificaciones</p>
       </div>
 
       <div class="education-timeline">
@@ -11,14 +11,13 @@
           v-for="(item, i) in education"
           :key="item.degree"
           class="timeline-item glass"
-          :class="{ reverse: i % 2 !== 0 }"
         >
           <div class="timeline-marker"></div>
           <div class="timeline-content">
             <span class="period">{{ item.period }}</span>
             <h3 class="degree">{{ item.degree }}</h3>
             <h4 class="institution">{{ item.institution }}</h4>
-            <p class="description">{{ item.description }}</p>
+            <p v-if="item.description" class="description">{{ item.description }}</p>
           </div>
         </div>
       </div>
@@ -26,8 +25,8 @@
       <!-- Certifications -->
       <div class="certifications-section">
         <div class="certifications-header">
-          <h3 class="certifications-title">Licencias y Certificaciones</h3>
-          <p class="certifications-subtitle">Formación continua y especialización profesional</p>
+          <h3 class="certifications-title">Certificaciones</h3>
+          <p class="certifications-subtitle">Formación especializada adicional</p>
         </div>
         <div class="certifications-grid">
           <div
@@ -37,11 +36,8 @@
           >
             <div class="cert-header">
               <div class="cert-logo" :class="cert.logoClass">
-                <svg v-if="cert.issuerType === 'linkedin'" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                </svg>
-                <svg v-else-if="cert.issuerType === 'microsoft'" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M0 0v11.408h11.408V0zm12.594 0v11.408H24V0zM0 12.594V24h11.408V12.594zm12.594 0V24H24V12.594z"/>
+                <svg v-if="cert.issuerType === 'cisco'" viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
+                  <path d="M1.258 9.376a.894.894 0 0 1 .893-.893h.893a.894.894 0 0 1 .893.893v5.16a.894.894 0 0 1-.893.893h-.893a.894.894 0 0 1-.893-.893zm4.46 0a.894.894 0 0 1 .894-.893h.893a.894.894 0 0 1 .893.893v5.16a.894.894 0 0 1-.893.893h-.893a.894.894 0 0 1-.893-.893zm4.46 0a.894.894 0 0 1 .893-.893h.893a.894.894 0 0 1 .893.893v5.16a.894.894 0 0 1-.893.893h-.893a.894.894 0 0 1-.893-.893zm4.461 0a.894.894 0 0 1 .893-.893h.893a.894.894 0 0 1 .893.893v5.16a.894.894 0 0 1-.893.893h-.893a.894.894 0 0 1-.893-.893zm4.46 0a.894.894 0 0 1 .893-.893h.893a.894.894 0 0 1 .893.893v5.16a.894.894 0 0 1-.893.893h-.893a.894.894 0 0 1-.893-.893z"/>
                 </svg>
                 <span v-else class="cert-icon">🎓</span>
               </div>
@@ -65,46 +61,28 @@
 <script setup>
 const education = [
   {
-    period: '2018 – 2024',
-    degree: 'Ingeniería Informática',
-    institution: 'Universidad XYZ',
-    description: 'Formación integral en desarrollo de software, arquitectura de sistemas y ciencias de la computación.',
+    period: 'Sep 2024 – Jun 2026',
+    degree: 'CFGS Desarrollo de Aplicaciones Web',
+    institution: 'MEDAC Albacete',
+    description: 'Formación técnica en desarrollo web full stack. Prácticas profesionales en empresa del sector (im3dia comunicación) con proyectos en producción real.',
   },
   {
-    period: '2013 – 2017',
+    period: 'Sep 2018 – Jun 2024',
     degree: 'Bachillerato Tecnológico',
-    institution: 'IES XYZ',
-    description: 'Especialización en sistemas informáticos y redes. Proyecto fin de ciclo con mención de honor.',
+    institution: 'IES Diego de Siloé',
+    description: null,
   },
 ]
 
 const certifications = [
   {
-    name: 'Vue 3 – De cero a experto',
-    issuer: 'Udemy',
-    issuerType: 'other',
-    logoClass: '',
-    date: 'Mar 2024',
-    skills: ['Vue 3', 'Composition API', 'Pinia'],
-    url: '#',
-  },
-  {
-    name: 'Laravel 11: Aplicaciones modernas',
-    issuer: 'LinkedIn Learning',
-    issuerType: 'linkedin',
-    logoClass: 'linkedin',
-    date: 'Ene 2024',
-    skills: ['Laravel', 'PHP', 'Eloquent ORM'],
-    url: '#',
-  },
-  {
-    name: 'Fundamentos de Cloud Computing',
-    issuer: 'Microsoft & LinkedIn',
-    issuerType: 'microsoft',
-    logoClass: 'microsoft',
-    date: 'Nov 2023',
-    skills: ['Azure', 'DevOps', 'Cloud'],
-    url: '#',
+    name: 'Técnico en Ciberseguridad en la Empresa 4.0',
+    issuer: 'Wolkit Solutions / areaproject · Certificado por CISCO',
+    issuerType: 'cisco',
+    logoClass: 'cisco',
+    date: 'Oct 2024 – Ene 2025',
+    skills: ['Ciberseguridad', 'Redes', 'CISCO'],
+    url: null,
   },
 ]
 </script>
@@ -168,8 +146,8 @@ const certifications = [
   color: var(--accent);
   margin-bottom: 16px;
 }
-.degree { font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
-.institution { font-size: 16px; font-weight: 500; color: var(--text-secondary); margin-bottom: 12px; }
+.degree { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; line-height: 1.3; }
+.institution { font-size: 15px; font-weight: 500; color: var(--text-secondary); margin-bottom: 12px; }
 .description { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
 
 /* Certifications */
@@ -187,7 +165,7 @@ const certifications = [
 .certifications-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 24px; max-width: 1000px; margin: 0 auto;
+  gap: 24px; max-width: 700px; margin: 0 auto;
 }
 .certification-card {
   padding: 28px; border-radius: 20px;
@@ -206,13 +184,12 @@ const certifications = [
   background: rgba(255,255,255,0.05);
   border-radius: 10px;
 }
-.cert-logo.linkedin { background: rgba(10,102,194,0.15); color: #0a66c2; }
-.cert-logo.microsoft { background: rgba(0,120,212,0.15); color: #0078d4; }
+.cert-logo.cisco { background: rgba(0,151,210,0.15); color: #0097d2; }
 .cert-date {
   font-size: 13px; color: var(--text-secondary);
   padding: 6px 12px; background: rgba(255,255,255,0.05); border-radius: 8px;
 }
-.cert-name { font-size: 18px; font-weight: 600; color: var(--text-primary); line-height: 1.4; }
+.cert-name { font-size: 17px; font-weight: 600; color: var(--text-primary); line-height: 1.4; }
 .cert-issuer { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
 .cert-skills { display: flex; flex-wrap: wrap; gap: 8px; }
 .skill-badge {

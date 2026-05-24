@@ -14,7 +14,7 @@
     <meta property="og:url" content="{{ url('/') }}">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/icono-ls.png">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

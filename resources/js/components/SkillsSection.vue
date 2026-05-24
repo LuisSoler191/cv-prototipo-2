@@ -2,7 +2,7 @@
   <section id="skills" class="skills">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Habilidades</h2>
+        <h2 class="section-title">Stack Técnico</h2>
         <p class="section-subtitle">Tecnologías y herramientas que domino</p>
       </div>
 
@@ -44,23 +44,45 @@ import { ref, computed } from 'vue'
 
 const activeFilter = ref('Todos')
 
-const categories = ['Todos', 'Frontend', 'Backend', 'DevOps']
+const categories = ['Todos', 'Back-End', 'Front-End', 'Infra', 'IA Local']
 
-// Adapta estos skills a los tuyos. Añade tus iconos en public/images/skills/
+// Iconos desde Simple Icons CDN (sin dependencia de archivos locales)
+const si = (slug) => `https://cdn.simpleicons.org/${slug}/ffffff`
+
 const skills = [
-  { name: 'Vue 3',       category: 'Frontend', icon: '/images/skills/vue.svg' },
-  { name: 'JavaScript',  category: 'Frontend', icon: '/images/skills/js.svg' },
-  { name: 'TypeScript',  category: 'Frontend', icon: '/images/skills/typescript.svg' },
-  { name: 'HTML',        category: 'Frontend', icon: '/images/skills/html.svg' },
-  { name: 'CSS',         category: 'Frontend', icon: '/images/skills/css.svg' },
-  { name: 'Tailwind',    category: 'Frontend', icon: '/images/skills/tailwind.svg' },
-  { name: 'Figma',       category: 'Frontend', icon: '/images/skills/figma.svg' },
-  { name: 'Laravel',     category: 'Backend',  icon: '/images/skills/laravel.svg' },
-  { name: 'PHP',         category: 'Backend',  icon: '/images/skills/php.svg' },
-  { name: 'MySQL',       category: 'Backend',  icon: '/images/skills/mysql.svg' },
-  { name: 'REST API',    category: 'Backend',  icon: '/images/skills/rest-api.svg' },
-  { name: 'Git',         category: 'DevOps',   icon: '/images/skills/git.svg' },
-  { name: 'Docker',      category: 'DevOps',   icon: '/images/skills/docker.svg' },
+  // Back-End
+  { name: 'PHP',           category: 'Back-End', icon: si('php') },
+  { name: 'Laravel',       category: 'Back-End', icon: si('laravel') },
+  { name: 'API REST',      category: 'Back-End', icon: si('openapiinitiative') },
+  { name: 'JWT',           category: 'Back-End', icon: si('jsonwebtokens') },
+  { name: 'MySQL',         category: 'Back-End', icon: si('mysql') },
+  { name: 'Swagger',       category: 'Back-End', icon: si('swagger') },
+  // Front-End
+  { name: 'JavaScript',   category: 'Front-End', icon: si('javascript') },
+  { name: 'Vue 3',         category: 'Front-End', icon: si('vuedotjs') },
+  { name: 'React',         category: 'Front-End', icon: si('react') },
+  { name: 'Vite',          category: 'Front-End', icon: si('vite') },
+  { name: 'HTML',          category: 'Front-End', icon: si('html5') },
+  { name: 'CSS',           category: 'Front-End', icon: si('css') },
+  { name: 'Tailwind',      category: 'Front-End', icon: si('tailwindcss') },
+  { name: 'Bootstrap',     category: 'Front-End', icon: si('bootstrap') },
+  // Infra
+  { name: 'Git',           category: 'Infra', icon: si('git') },
+  { name: 'GitHub',        category: 'Infra', icon: si('github') },
+  { name: 'Docker',        category: 'Infra', icon: si('docker') },
+  { name: 'Ubuntu',        category: 'Infra', icon: si('ubuntu') },
+  { name: 'Bash',          category: 'Infra', icon: si('gnubash') },
+  { name: 'SSH',           category: 'Infra', icon: '/images/skills/ssh2.svg' },
+  { name: 'Caddy',         category: 'Infra', icon: '/images/skills/caddy.svg' },
+  { name: 'Vitest',        category: 'Infra', icon: '/images/skills/vitest.svg' },
+  { name: 'Playwright',    category: 'Infra', icon: '/images/skills/playwright.svg' },
+  // IA Local
+  { name: 'llama.cpp',     category: 'IA Local', icon: '/images/skills/llamacpp.png' },
+  { name: 'vLLM',          category: 'IA Local', icon: '/images/skills/vllm.svg' },
+  { name: 'OpenWebUI',     category: 'IA Local', icon: '/images/skills/openwebui.svg' },
+  { name: 'Ollama',        category: 'IA Local', icon: si('ollama') },
+  { name: 'Aider',         category: 'IA Local', icon: '/images/skills/aider2.svg' },
+  { name: 'Opencode',         category: 'IA Local', icon: '/images/skills/opencode.svg' },
 ]
 
 const filteredSkills = computed(() =>
@@ -87,6 +109,7 @@ const filteredSkills = computed(() =>
 .filters {
   display: inline-flex; gap: 8px;
   padding: 8px; border-radius: 16px;
+  flex-wrap: wrap; justify-content: center;
 }
 .filter-btn {
   padding: 10px 24px;
@@ -107,7 +130,7 @@ const filteredSkills = computed(() =>
 
 .skills-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 24px;
   max-width: 1000px;
   margin: 0 auto;
@@ -117,7 +140,7 @@ const filteredSkills = computed(() =>
   border-radius: 20px;
   text-align: center;
   transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-  cursor: pointer;
+  cursor: default;
 }
 .skill-card:hover {
   transform: translateY(-8px);
@@ -132,11 +155,11 @@ const filteredSkills = computed(() =>
   transition: transform 0.3s ease;
 }
 .skill-icon img {
-  width: 48px; height: 48px;
+  width: 96px; height: 48px;
   object-fit: contain;
   filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
 }
-.skill-name { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.skill-name { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
 .skill-category { font-size: 12px; color: var(--text-secondary); font-weight: 500; opacity: 0.7; }
 
 /* Transition group */
@@ -149,9 +172,8 @@ const filteredSkills = computed(() =>
   .skills { padding: 80px 0; }
   .section-title { font-size: 36px; }
   .section-subtitle { font-size: 16px; }
-  .filter-container { overflow-x: auto; padding: 0 16px; }
-  .filters { min-width: max-content; }
-  .skills-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; }
+  .filter-container { padding: 0 16px; }
+  .skills-grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 16px; }
 }
 @media (max-width: 480px) {
   .skills-grid { grid-template-columns: repeat(2, 1fr); }
