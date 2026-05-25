@@ -5,6 +5,11 @@ import vue from '@vitejs/plugin-vue';
 export default defineConfig({
     server: {
         cors: true,  // Permite solicitudes cruzadas
+        host: '0.0.0.0',
+        port: 5174,
+        hmr: {
+            host: '100.74.99.27',
+        },
     },
     plugins: [
         laravel({

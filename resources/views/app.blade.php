@@ -12,6 +12,8 @@
     <meta property="og:title" content="Luis Soler – Full Stack Developer">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:image" content="{{ url('/images/og-image.png') }}">
+    <meta property="og:description" content="Desarrollador web junior especializado en back-end y full stack con Laravel y Vue.js. Experiencia en entornos de producción real e integración de IA local.">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/icono-ls.png">
