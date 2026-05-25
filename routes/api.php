@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatController;
 use App\Mail\ContactFormMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -21,3 +22,5 @@ Route::post('/contact', function (Request $request) {
 
     return response()->json(['message' => 'Mensaje enviado correctamente.']);
 });
+
+Route::post('/chat', [ChatController::class, 'send']);

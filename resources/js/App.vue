@@ -10,6 +10,7 @@
       <ContactSection />
     </main>
     <FooterSection @scroll-to="scrollTo" />
+    <ChatWidget />
   </div>
 </template>
 
@@ -22,6 +23,7 @@ import EducationSection from './components/EducationSection.vue'
 import ProjectsSection from './components/ProjectsSection.vue'
 import ContactSection from './components/ContactSection.vue'
 import FooterSection from './components/FooterSection.vue'
+import ChatWidget from './components/ChatWidget.vue'
 
 function scrollTo(sectionId) {
   const el = document.getElementById(sectionId)
