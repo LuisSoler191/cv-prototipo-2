@@ -136,7 +136,7 @@ PROMPT;
         try {
             $response = Http::timeout(60)
                 ->withHeaders(['Authorization' => 'Bearer dummy'])
-                ->post('http://100.95.35.105:8001/v1/chat/completions', [
+                ->post('http://100.74.99.27:8001/v1/chat/completions', [
                     'model'       => 'qwen3.6-27b',
                     'messages'    => $messages,
                     'max_tokens'  => 8192,
