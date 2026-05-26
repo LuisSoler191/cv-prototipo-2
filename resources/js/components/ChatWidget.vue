@@ -13,16 +13,16 @@
 
     <!-- Ventana de chat -->
     <transition name="chat-slide">
-      <div v-if="isOpen" class="chat-window glass">
+      <div v-if="isOpen" class="chat-window">
         <!-- Header -->
         <div class="chat-header">
           <div class="chat-header-info">
             <div class="chat-avatar">🤖</div>
             <div>
-              <p class="chat-title">Asistente de Luis v0.1 (BETA)</p>
+              <p class="chat-title">Asistente de Luis v0.2 (BETA)</p>
               <p class="chat-status">
-                <span class="status-dot" :class="{ thinking: isLoading }"></span>
-                {{ isLoading ? 'Escribiendo...' : 'En línea' }}
+                <span class="status-dot" :class="{ thinking: isLoading || isStreaming }"></span>
+                {{ (isLoading || isStreaming) ? 'Escribiendo...' : 'En línea' }}
               </p>
             </div>
           </div>
@@ -42,14 +42,20 @@
             </div>
           </div>
 
-          <!-- Indicador de carga -->
-          <div v-if="isLoading" class="message assistant">
-            <div class="message-bubble loading">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </div>
-          </div>
+          <!-- Indicador de carga: spinner primer mensaje, dots siguientes -->
+           <div v-if="isLoading && !isStreaming && isFirstRealMessage" class="message assistant">
+             <div class="message-bubble loading-spinner">
+               <div class="spinner-ring"></div>
+               <span class="spinner-text">Recabando información...</span>
+             </div>
+           </div>
+           <div v-if="isLoading && !isStreaming && !isFirstRealMessage" class="message assistant">
+             <div class="message-bubble loading">
+               <span class="dot"></span>
+               <span class="dot"></span>
+               <span class="dot"></span>
+             </div>
+           </div>
         </div>
 
         <!-- Input -->
@@ -61,9 +67,9 @@
             rows="1"
             @keydown.enter.prevent="handleEnter"
             @input="autoResize"
-            :disabled="isLoading"
+            :disabled="isLoading || isStreaming"
           ></textarea>
-          <button class="send-btn" @click="sendMessage" :disabled="isLoading || !inputText.trim()">
+          <button class="send-btn" @click="sendMessage" :disabled="isLoading || isStreaming || !inputText.trim()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
             </svg>
@@ -75,23 +81,27 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
-import axios from 'axios'
+import { ref, nextTick, computed } from 'vue'
 
 const isOpen = ref(false)
 const isLoading = ref(false)
+const isStreaming = ref(false)
 const inputText = ref('')
 const unread = ref(1)
 const messagesContainer = ref(null)
 const inputRef = ref(null)
 
-// Mensaje de bienvenida hardcodeado — no llama al modelo
 const messages = ref([
   {
     role: 'assistant',
     content: '¡Hola! Soy el asistente de Luis. Puedo contarte sobre su experiencia, proyectos o stack técnico. ¿En qué puedo ayudarte?'
   }
 ])
+
+const isFirstRealMessage = computed(() => {
+  const realMessages = messages.value.filter(m => m.role === 'user')
+  return realMessages.length === 0
+})
 
 function toggleChat() {
   isOpen.value = !isOpen.value
@@ -108,44 +118,85 @@ async function sendMessage() {
   const text = inputText.value.trim()
   if (!text || isLoading.value) return
 
-  // Añadir mensaje del usuario
   messages.value.push({ role: 'user', content: text })
   inputText.value = ''
   resetTextarea()
   isLoading.value = true
+  isStreaming.value = false
   await nextTick()
   scrollToBottom()
 
-  // Historial para enviar al backend (sin el mensaje de bienvenida hardcodeado)
   const history = messages.value
-    .slice(1, -1) // excluye bienvenida y el mensaje que acabamos de añadir
+    .slice(1, -1)
     .map(m => ({ role: m.role, content: m.content }))
 
+  messages.value.push({ role: 'assistant', content: '' })
+  const assistantMsg = messages.value[messages.value.length - 1]
+
   try {
-    const { data } = await axios.post('/api/chat', {
-      message: text,
-      history,
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, history }),
     })
 
-    messages.value.push({
-      role: 'assistant',
-      content: data.reply || 'No he podido obtener respuesta.'
-    })
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}))
+      assistantMsg.content = errData.error || 'El asistente no está disponible ahora mismo.'
+      return
+    }
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder('utf-8')
+    let buffer = ''
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() || ''
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue
+        const data = line.slice(6)
+        if (data === '[DONE]') break
+        try {
+          const json = JSON.parse(data)
+          if (json.error) {
+            assistantMsg.content = json.error
+            return
+          }
+          if (json.token) {
+            if (!isStreaming.value) {
+              isStreaming.value = true
+              isLoading.value = false
+            }
+            assistantMsg.content += json.token
+            await nextTick()
+            scrollToBottom()
+          }
+        } catch { /* skip malformed SSE */ }
+      }
+    }
+
+    if (!assistantMsg.content) {
+      assistantMsg.content = 'No he podido obtener respuesta.'
+    }
   } catch (err) {
-    const msg = err.response?.status === 429
-      ? 'Demasiadas peticiones. Espera un momento.'
-      : 'El asistente no está disponible ahora mismo. Intenta más tarde.'
-
-    messages.value.push({ role: 'assistant', content: msg })
+    if (!assistantMsg.content) {
+      assistantMsg.content = 'El asistente no está disponible ahora mismo. Intenta más tarde.'
+    }
   } finally {
     isLoading.value = false
+    isStreaming.value = false
     await nextTick()
     scrollToBottom()
   }
 }
 
 function handleEnter(e) {
-  // Shift+Enter = salto de línea, Enter solo = enviar
   if (e.shiftKey) return
   sendMessage()
 }
@@ -168,7 +219,6 @@ function resetTextarea() {
   }
 }
 
-// Convierte saltos de línea y **negrita** a HTML básico
 function formatMessage(text) {
   return text
     .replace(/&/g, '&amp;')
@@ -235,8 +285,9 @@ function formatMessage(text) {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255,255,255,0.08);
   box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  background: #1a1a1a;
 }
 
 /* Header */
@@ -245,8 +296,8 @@ function formatMessage(text) {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--glass-border);
-  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: #222222;
   flex-shrink: 0;
 }
 .chat-header-info { display: flex; align-items: center; gap: 12px; }
@@ -296,7 +347,7 @@ function formatMessage(text) {
   border-bottom-right-radius: 4px;
 }
 .message.assistant .message-bubble {
-  background: rgba(255,255,255,0.08);
+  background: #2a2a2a;
   color: var(--text-primary);
   border-bottom-left-radius: 4px;
 }
@@ -317,20 +368,44 @@ function formatMessage(text) {
 .dot:nth-child(2) { animation-delay: 0.2s; }
 .dot:nth-child(3) { animation-delay: 0.4s; }
 
+/* Spinner primer mensaje */
+.message-bubble.loading-spinner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+.spinner-ring {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+.spinner-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* Input */
 .chat-input-area {
   display: flex;
   align-items: flex-end;
   gap: 8px;
   padding: 12px 16px;
-  border-top: 1px solid var(--glass-border);
-  background: rgba(255,255,255,0.03);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  background: #222222;
   flex-shrink: 0;
 }
 .chat-input-area textarea {
   flex: 1;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid var(--glass-border);
+  background: #1e1e1e;
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 12px;
   color: var(--text-primary);
   font-size: 14px;

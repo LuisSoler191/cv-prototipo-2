@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\HttpFactory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
 
 class ChatController extends Controller
@@ -134,25 +135,60 @@ PROMPT;
         ];
 
         try {
-            $response = Http::timeout(60)
-                ->withHeaders(['Authorization' => 'Bearer dummy'])
-                ->post('http://100.74.99.27:8001/v1/chat/completions', [
-                    'model'       => 'qwen3.6-27b',
+            $headers = [
+                'Content-Type'           => 'text/event-stream',
+                'Cache-Control'          => 'no-cache',
+                'X-Accel-Buffering'      => 'no',
+                'X-Content-Type-Options' => 'nosniff',
+            ];
+
+            return response()->stream(function () use ($messages) {
+                $client = new Client(['timeout' => 60, 'connect_timeout' => 10]);
+                $request = (new HttpFactory())->createRequest('POST', 'http://100.74.99.27:8001/v1/chat/completions');
+                $request = $request->withHeader('Authorization', 'Bearer dummy');
+                $request = $request->withHeader('Content-Type', 'application/json');
+
+                $body = json_encode([
+                    'model'       => 'qwen3.6-35b',
                     'messages'    => $messages,
                     'max_tokens'  => 8192,
                     'temperature' => 0.7,
+                    'stream'      => true,
                 ]);
 
-            if ($response->failed()) {
-                return response()->json([
-                    'error' => 'El modelo no está disponible en este momento.'
-                ], 503);
-            }
+                $response = $client->send($request, [
+                    'body'   => $body,
+                    'stream' => true,
+                ]);
 
-            $message = $response->json('choices.0.message');
-            $content = $message['content'] ?? $message['reasoning_content'] ?? '';
+                if ($response->getStatusCode() >= 400) {
+                    echo "data: {\"error\":\"El modelo no está disponible en este momento.\"}\n\n";
+                    flush();
+                    return;
+                }
 
-            return response()->json(['reply' => trim($content)]);
+                $content = (string) $response->getBody();
+                $blocks = preg_split('/\n\s*\n/', trim($content));
+
+                foreach ($blocks as $block) {
+                    $lines = explode("\n", $block);
+                    foreach ($lines as $line) {
+                        $line = trim($line);
+                        if (!str_starts_with($line, 'data: ')) continue;
+                        $data = substr($line, 6);
+                        if ($data === '[DONE]') return;
+                        $json = json_decode($data, true);
+                        if (!$json) continue;
+                        $token = $json['choices'][0]['delta']['content'] ?? '';
+                        if ($token !== '') {
+                            echo "data: " . json_encode(['token' => $token]) . "\n\n";
+                            flush();
+                        }
+                    }
+                }
+                echo "data: [DONE]\n\n";
+                flush();
+            }, 200, $headers);
 
         } catch (\Exception $e) {
             return response()->json([
