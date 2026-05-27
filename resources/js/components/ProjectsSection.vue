@@ -66,7 +66,10 @@
                 </div>
               </div>
               <div class="modal-actions">
-                <a v-if="selectedProject.demoUrl" :href="selectedProject.demoUrl" target="_blank" class="modal-btn primary">
+                <button v-if="selectedProject.title.includes('Chatbot')" @click="openChatDemo" class="modal-btn primary">
+                  Ver demo →
+                </button>
+                <a v-else-if="selectedProject.demoUrl" :href="selectedProject.demoUrl" target="_blank" class="modal-btn primary">
                   Ver demo →
                 </a>
                 <a v-if="selectedProject.repoUrl" :href="selectedProject.repoUrl" target="_blank" class="modal-btn secondary">
@@ -92,6 +95,10 @@ function slide(dir) {
 }
 function openModal(p) { selectedProject.value = p }
 function closeModal() { selectedProject.value = null }
+function openChatDemo() {
+  window.dispatchEvent(new CustomEvent('open-chat'))
+  closeModal()
+}
 
 const projects = [
   {

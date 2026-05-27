@@ -142,7 +142,11 @@ PROMPT;
                 'X-Content-Type-Options' => 'nosniff',
             ];
 
-            return response()->stream(function () use ($messages) {
+           return response()->stream(function () use ($messages) {
+                // Output buffer management — force immediate flush
+                while (ob_get_level() > 0) { ob_end_flush(); }
+                ob_implicit_flush(true);
+
                 $client = new Client(['timeout' => 60, 'connect_timeout' => 10]);
                 $request = (new HttpFactory())->createRequest('POST', 'http://100.74.99.27:8001/v1/chat/completions');
                 $request = $request->withHeader('Authorization', 'Bearer dummy');
@@ -163,30 +167,67 @@ PROMPT;
 
                 if ($response->getStatusCode() >= 400) {
                     echo "data: {\"error\":\"El modelo no está disponible en este momento.\"}\n\n";
+                    @ob_flush();
                     flush();
                     return;
                 }
 
-                $content = (string) $response->getBody();
-                $blocks = preg_split('/\n\s*\n/', trim($content));
+                $stream = $response->getBody();
+                $buffer = '';
 
-                foreach ($blocks as $block) {
-                    $lines = explode("\n", $block);
-                    foreach ($lines as $line) {
-                        $line = trim($line);
-                        if (!str_starts_with($line, 'data: ')) continue;
-                        $data = substr($line, 6);
-                        if ($data === '[DONE]') return;
-                        $json = json_decode($data, true);
-                        if (!$json) continue;
-                        $token = $json['choices'][0]['delta']['content'] ?? '';
-                        if ($token !== '') {
-                            echo "data: " . json_encode(['token' => $token]) . "\n\n";
-                            flush();
+                while (!$stream->eof()) {
+                    $chunk = $stream->read(256);
+                    if ($chunk === false || $chunk === '') break;
+
+                    $buffer .= $chunk;
+
+                    // Process complete lines from the buffer
+                    while (($newlinePos = strpos($buffer, "\n")) !== false) {
+                        $line = rtrim(substr($buffer, 0, $newlinePos), "\r");
+                        $buffer = substr($buffer, $newlinePos + 1);
+
+                        if (str_starts_with($line, 'data: ')) {
+                            $data = substr($line, 6);
+                            if ($data === '[DONE]') {
+                                echo "data: [DONE]\n\n";
+                                @ob_flush();
+                                flush();
+                                return;
+                            }
+                            $json = json_decode($data, true);
+                            if ($json) {
+                                $token = $json['choices'][0]['delta']['content'] ?? '';
+                                if ($token !== '') {
+                                    echo "data: " . json_encode(['token' => $token]) . "\n\n";
+                                    @ob_flush();
+                                    flush();
+                                }
+                            }
                         }
                     }
                 }
+
+                // Process any remaining data in buffer (last line without newline)
+                if (!empty($buffer)) {
+                    $line = rtrim($buffer, "\r");
+                    if (str_starts_with($line, 'data: ')) {
+                        $data = substr($line, 6);
+                        if ($data !== '[DONE]') {
+                            $json = json_decode($data, true);
+                            if ($json) {
+                                $token = $json['choices'][0]['delta']['content'] ?? '';
+                                if ($token !== '') {
+                                    echo "data: " . json_encode(['token' => $token]) . "\n\n";
+                                    @ob_flush();
+                                    flush();
+                                }
+                            }
+                        }
+                    }
+                }
+
                 echo "data: [DONE]\n\n";
+                @ob_flush();
                 flush();
             }, 200, $headers);
 

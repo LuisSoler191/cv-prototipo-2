@@ -1,7 +1,7 @@
 <template>
   <div class="chat-widget">
     <!-- Burbuja flotante -->
-    <button class="chat-bubble" @click="toggleChat" :class="{ open: isOpen }" aria-label="Abrir chat">
+    <button class="chat-bubble" @click="onBubbleClick" :class="{ open: isOpen }" aria-label="Abrir chat">
       <svg v-if="!isOpen" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
         <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
       </svg>
@@ -11,6 +11,11 @@
       <span v-if="!isOpen && unread > 0" class="unread-badge">{{ unread }}</span>
     </button>
 
+    <!-- Popup "¡Hola!" -->
+    <transition name="popup-fade">
+      <div v-if="showPopup" class="chat-popup">¡Hola!</div>
+    </transition>
+
     <!-- Ventana de chat -->
     <transition name="chat-slide">
       <div v-if="isOpen" class="chat-window">
@@ -19,7 +24,7 @@
           <div class="chat-header-info">
             <div class="chat-avatar">🤖</div>
             <div>
-              <p class="chat-title">Asistente de Luis v0.2 (BETA)</p>
+              <p class="chat-title">Asistente de Luis v0.3 (BETA)</p>
               <p class="chat-status">
                 <span class="status-dot" :class="{ thinking: isLoading || isStreaming }"></span>
                 {{ (isLoading || isStreaming) ? 'Escribiendo...' : 'En línea' }}
@@ -81,7 +86,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick, computed } from 'vue'
+import { ref, nextTick, computed, onMounted, onUnmounted } from 'vue'
 
 const isOpen = ref(false)
 const isLoading = ref(false)
@@ -101,6 +106,50 @@ const messages = ref([
 const isFirstRealMessage = computed(() => {
   const realMessages = messages.value.filter(m => m.role === 'user')
   return realMessages.length === 0
+})
+
+const showPopup = ref(false)
+let popupShowTimer = null
+let popupHideTimer = null
+
+function dismissPopup() {
+  showPopup.value = false
+  if (popupHideTimer) { clearTimeout(popupHideTimer); popupHideTimer = null }
+}
+
+function onBubbleClick() {
+  dismissPopup()
+  toggleChat()
+}
+
+function openChat() {
+  dismissPopup()
+  if (!isOpen.value) {
+    isOpen.value = true
+    unread.value = 0
+    nextTick(() => {
+      scrollToBottom()
+      inputRef.value?.focus()
+    })
+  }
+}
+
+function onOpenChatEvent() {
+  openChat()
+}
+
+onMounted(() => {
+  window.addEventListener('open-chat', onOpenChatEvent)
+  popupShowTimer = setTimeout(() => {
+    showPopup.value = true
+    popupHideTimer = setTimeout(dismissPopup, 5000)
+  }, 5000)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('open-chat', onOpenChatEvent)
+  if (popupShowTimer) { clearTimeout(popupShowTimer); popupShowTimer = null }
+  if (popupHideTimer) { clearTimeout(popupHideTimer); popupHideTimer = null }
 })
 
 function toggleChat() {
@@ -174,8 +223,6 @@ async function sendMessage() {
               isLoading.value = false
             }
             assistantMsg.content += json.token
-            await nextTick()
-            scrollToBottom()
           }
         } catch { /* skip malformed SSE */ }
       }
@@ -261,6 +308,33 @@ function formatMessage(text) {
 .chat-bubble:hover { transform: scale(1.08); background: var(--accent-hover); }
 .chat-bubble.open { background: rgba(255,255,255,0.12); box-shadow: none; }
 
+/* Popup "¡Hola!" */
+.chat-popup {
+  position: absolute;
+  bottom: 72px;
+  right: 0;
+  background: #222222;
+  color: var(--text-primary);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 24px;
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.08);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.popup-fade-enter-active,
+.popup-fade-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.popup-fade-enter-from,
+.popup-fade-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
 .unread-badge {
   position: absolute;
   top: -4px;
@@ -279,8 +353,8 @@ function formatMessage(text) {
 
 /* Ventana */
 .chat-window {
-  width: 360px;
-  height: 500px;
+  width: 490px;
+  height: 700px;
   border-radius: 20px;
   display: flex;
   flex-direction: column;
