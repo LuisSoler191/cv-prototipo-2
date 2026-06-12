@@ -16,6 +16,6 @@ yarn-error.log
 /resources/lang/php_es.json
 /resources/lang/php_en.json
 to-do-list.txt
-z-opencode
+/z-opencode
 .claude
 .playwright

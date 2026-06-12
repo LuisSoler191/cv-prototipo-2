@@ -73,10 +73,10 @@
                 <button v-if="selectedProject.title.includes('Chatbot')" @click="openChatDemo" class="modal-btn primary">
                   Ver demo →
                 </button>
-                <a v-else-if="selectedProject.demoUrl" :href="selectedProject.demoUrl" target="_blank" class="modal-btn primary">
+                <a v-else-if="selectedProject.demoUrl" :href="selectedProject.demoUrl" target="_blank" rel="noopener noreferrer" class="modal-btn primary">
                   Ver demo →
                 </a>
-                <a v-if="selectedProject.repoUrl" :href="selectedProject.repoUrl" target="_blank" class="modal-btn secondary">
+                <a v-if="selectedProject.repoUrl" :href="selectedProject.repoUrl" target="_blank" rel="noopener noreferrer" class="modal-btn secondary">
                   GitHub
                 </a>
               </div>
