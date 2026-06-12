@@ -1,14 +1,11 @@
 <template>
   <div class="chat-widget">
-    <!-- Burbuja flotante -->
-    <button class="chat-bubble" @click="onBubbleClick" :class="{ open: isOpen }" aria-label="Abrir chat">
-      <svg v-if="!isOpen" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+    <!-- Burbuja flotante (oculta cuando ventana abierta) -->
+    <button v-if="!isOpen" class="chat-bubble" @click="onBubbleClick" aria-label="Abrir chat">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
         <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
       </svg>
-      <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-      </svg>
-      <span v-if="!isOpen && unread > 0" class="unread-badge">{{ unread }}</span>
+      <span v-if="unread > 0" class="unread-badge">{{ unread }}</span>
     </button>
 
     <!-- Popup "¡Hola!" -->
@@ -18,7 +15,7 @@
 
     <!-- Ventana de chat -->
     <transition name="chat-slide">
-      <div v-if="isOpen" class="chat-window">
+      <div v-if="isOpen" class="chat-window" ref="chatWindowRef">
         <!-- Header -->
         <div class="chat-header">
           <div class="chat-header-info">
@@ -86,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick, computed, onMounted, onUnmounted } from 'vue'
+import { ref, nextTick, computed, watch, onMounted, onUnmounted } from 'vue'
 
 const isOpen = ref(false)
 const isLoading = ref(false)
@@ -95,6 +92,22 @@ const inputText = ref('')
 const unread = ref(1)
 const messagesContainer = ref(null)
 const inputRef = ref(null)
+const chatWindowRef = ref(null)
+let clickOnBubble = false
+
+function adjustChatHeight() {
+  const cw = document.querySelector('.chat-window')
+  if (!cw) return
+  const widget = document.querySelector('.chat-widget')
+  if (!widget) return
+  const widgetRect = widget.getBoundingClientRect()
+  const bubbleSpace = 68
+  const maxVh = (700 / window.innerHeight) * 100
+  const spaceVh = ((widgetRect.bottom - bubbleSpace) / window.innerHeight) * 100
+  const desiredVh = Math.min(maxVh, Math.max(30, spaceVh))
+  cw.style.maxHeight = desiredVh + 'vh'
+  cw.style.height = desiredVh + 'vh'
+}
 
 const messages = ref([
   {
@@ -102,6 +115,12 @@ const messages = ref([
     content: '¡Hola! Soy el asistente de Luis. Puedo contarte sobre su experiencia, proyectos o stack técnico. ¿En qué puedo ayudarte?'
   }
 ])
+
+watch(isOpen, (newVal) => {
+  if (newVal) {
+    setTimeout(adjustChatHeight, 100)
+  }
+})
 
 const isFirstRealMessage = computed(() => {
   const realMessages = messages.value.filter(m => m.role === 'user')
@@ -118,6 +137,7 @@ function dismissPopup() {
 }
 
 function onBubbleClick() {
+  clickOnBubble = true
   dismissPopup()
   toggleChat()
 }
@@ -138,8 +158,25 @@ function onOpenChatEvent() {
   openChat()
 }
 
+function onKeydown(e) {
+  if (e.key === 'Escape' && isOpen.value) {
+    toggleChat()
+  }
+}
+
+function onClickOutside(e) {
+  if (!isOpen.value) return
+  if (clickOnBubble) { clickOnBubble = false; return }
+  const widget = document.querySelector('.chat-widget')
+  if (!widget || widget.contains(e.target)) return
+  toggleChat()
+}
+
 onMounted(() => {
   window.addEventListener('open-chat', onOpenChatEvent)
+  window.addEventListener('keydown', onKeydown)
+  window.addEventListener('resize', adjustChatHeight)
+  document.addEventListener('click', onClickOutside)
   popupShowTimer = setTimeout(() => {
     showPopup.value = true
     popupHideTimer = setTimeout(dismissPopup, 5000)
@@ -148,6 +185,9 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('open-chat', onOpenChatEvent)
+  window.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('resize', adjustChatHeight)
+  document.removeEventListener('click', onClickOutside)
   if (popupShowTimer) { clearTimeout(popupShowTimer); popupShowTimer = null }
   if (popupHideTimer) { clearTimeout(popupHideTimer); popupHideTimer = null }
 })
@@ -281,6 +321,8 @@ function formatMessage(text) {
   position: fixed;
   bottom: 28px;
   right: 28px;
+  width: min(490px, calc(100vw - 56px));
+  max-height: calc(100vh - 28px);
   z-index: 9999;
   display: flex;
   flex-direction: column;
@@ -353,8 +395,9 @@ function formatMessage(text) {
 
 /* Ventana */
 .chat-window {
-  width: 490px;
-  height: 700px;
+  width: 100%;
+  max-height: 700px;
+  min-height: 350px;
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -529,8 +572,8 @@ function formatMessage(text) {
 }
 
 /* Mobile */
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .chat-widget { bottom: 16px; right: 16px; }
-  .chat-window { width: calc(100vw - 32px); height: 420px; }
+  .chat-window { width: calc(100vw - 32px); max-height: 500px; min-height: 300px; }
 }
 </style>

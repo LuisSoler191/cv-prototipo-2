@@ -15,7 +15,11 @@
             v-for="project in projects"
             :key="project.title"
             class="project-card glass"
+            role="button"
+            tabindex="0"
             @click="openModal(project)"
+            @keydown.enter.prevent="openModal(project)"
+            @keydown.space.prevent="openModal(project)"
           >
             <div class="project-image">
               <img v-if="project.image" :src="project.image" :alt="project.title" />
@@ -85,7 +89,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const sliderRef = ref(null)
 const selectedProject = ref(null)
@@ -99,6 +103,20 @@ function openChatDemo() {
   window.dispatchEvent(new CustomEvent('open-chat'))
   closeModal()
 }
+
+function onKeydown(e) {
+  if (e.key === 'Escape' && selectedProject.value) {
+    closeModal()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
+})
 
 const projects = [
   {
@@ -194,9 +212,13 @@ const projects = [
   cursor: pointer; transition: all 0.3s ease;
 }
 .project-card:hover {
-  transform: translateY(-8px);
-  border-color: rgba(255,255,255,0.15);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+   transform: translateY(-8px);
+   border-color: rgba(255,255,255,0.15);
+   box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+.project-card:focus-visible {
+   outline: 2px solid var(--accent);
+   outline-offset: 4px;
 }
 .project-image {
   width: 100%; height: 240px;

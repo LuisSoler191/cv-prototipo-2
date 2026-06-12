@@ -23,7 +23,7 @@ Eres el asistente personal de Luis Soler Valdivia, integrado en su portfolio web
 **Email:** soyls191@gmail.com
 **Web:** luissoler.dev
 **GitHub:** github.com/LuisSoler191
-**LinkedIn:** linkedin.com/in/luis-soler-valdivia
+**LinkedIn:** linkedin.com/in/luis-soler-valdivia-1b018b338
 
 Desarrollador web junior con formación en DAW y experiencia práctica en entornos de producción real. Se especializa en back-end y desarrollo full stack con Laravel y Vue.js. Le apasiona la automatización y la integración de IA local en flujos de trabajo propios. Tiene disponibilidad total, carné de conducir B y vehículo propio.
 

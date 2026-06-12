@@ -9,9 +9,9 @@
         <!-- Desktop nav -->
         <ul class="nav-links desktop">
           <li v-for="item in navItems" :key="item.id">
-            <a @click="$emit('scroll-to', item.id)" :class="{ active: activeSection === item.id }">
+            <button @click="$emit('scroll-to', item.id)" :class="{ active: activeSection === item.id }">
               {{ item.label }}
-            </a>
+            </button>
           </li>
         </ul>
 
@@ -27,12 +27,13 @@
     <div class="mobile-menu" :class="{ active: mobileOpen }">
       <div class="mobile-menu-header">
         <span class="mobile-logo">Luis Soler</span>
+        <button class="mobile-menu-close" @click="mobileOpen = false" aria-label="Cerrar menú">✕</button>
       </div>
       <ul class="mobile-nav-links">
         <li v-for="item in navItems" :key="item.id">
-          <a @click="nav(item.id)" :class="{ active: activeSection === item.id }">
+          <button @click="nav(item.id)" :class="{ active: activeSection === item.id }">
             {{ item.label }}
-          </a>
+          </button>
         </li>
       </ul>
     </div>
@@ -129,19 +130,23 @@ onUnmounted(() => {
   gap: 32px;
   list-style: none;
 }
-.nav-links a {
+.nav-links button {
   font-size: 14px;
   font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
   transition: color 0.3s ease;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
 }
-.nav-links a:hover { color: var(--text-primary); }
-.nav-links a.active {
+.nav-links button:hover { color: var(--text-primary); }
+.nav-links button.active {
   color: var(--text-primary);
   position: relative;
 }
-.nav-links a.active::after {
+.nav-links button.active::after {
   content: '';
   position: absolute;
   bottom: -4px;
@@ -150,14 +155,14 @@ onUnmounted(() => {
   background: var(--accent);
   border-radius: 1px;
 }
-.nav-links a.contact-btn {
+.nav-links button.contact-btn {
   padding: 7px 16px;
   background: var(--accent);
   color: var(--text-primary);
   border-radius: 10px;
   transition: all 0.2s ease;
 }
-.nav-links a.contact-btn:hover {
+.nav-links button.contact-btn:hover {
   background: var(--accent-hover);
   transform: scale(1.02);
 }
@@ -185,28 +190,44 @@ onUnmounted(() => {
 .mobile-menu-btn.open span:nth-child(2) { opacity: 0; transform: translateX(20px); }
 .mobile-menu-btn.open span:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
 .mobile-menu-overlay {
-  position: fixed; inset: 0;
+  position: fixed; top: 0; left: 0; right: 0;
+  width: 100vw; height: 100vh;
   background: rgba(0,0,0,0.8);
   opacity: 0; visibility: hidden;
   transition: all 0.3s ease;
-  z-index: 1098;
+  z-index: 1150;
 }
 .mobile-menu-overlay.active { opacity: 1; visibility: visible; }
 .mobile-menu {
   display: none;
-  position: fixed; top: 0; right: 0; bottom: 0;
+  position: fixed; top: 0; right: 0;
   width: 85%; max-width: 400px;
+  height: 100vh;
   background: #000;
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-  z-index: 1099;
+  z-index: 1160;
   overflow-y: auto;
 }
 .mobile-menu.active { transform: translateX(0); }
 .mobile-menu-header {
-  padding: 24px;
+  padding: 80px 24px 24px;
   border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
+.mobile-menu-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 28px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.mobile-menu-close:hover { color: var(--text-primary); }
 .mobile-logo {
   font-size: 20px; font-weight: 600;
   background: linear-gradient(135deg, #fff, #a1a1a1);
@@ -216,16 +237,21 @@ onUnmounted(() => {
 }
 .mobile-nav-links { list-style: none; }
 .mobile-nav-links li { border-bottom: 1px solid rgba(255,255,255,0.1); }
-.mobile-nav-links a {
+.mobile-nav-links button {
   display: block;
   padding: 20px 24px;
   font-size: 18px; font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.3s ease;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
 }
-.mobile-nav-links a:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
-.mobile-nav-links a.contact-btn {
+.mobile-nav-links button:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+.mobile-nav-links button.contact-btn {
   margin: 16px 24px;
   padding: 12px 24px;
   background: var(--accent);
