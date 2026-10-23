@@ -10,7 +10,7 @@ Portafolio personal SPA con chatbot IA integrado. Diseño propio inspirado en te
 
 | Capa | Tecnología |
 |------|------------|
-| Backend | Laravel 11, PHP 8.3+ |
+| Backend | Laravel 11, PHP 8.5 (runtime Sail 8.5, mínimo 8.5.12) |
 | Frontend | Vue 3 (Composition API) + Vite |
 | Estilos | CSS Scoped + variables CSS globales + glass morphism |
 | Docker | Laravel Sail (MySQL 8.4) |
@@ -161,6 +161,20 @@ La app responde en `http://localhost` (puerto 80). Vite en `http://localhost:517
 
 > Si `sail` no está en el PATH: usa `./vendor/bin/sail <comando>`
 
+### Actualizar PHP (reconstruir la imagen)
+
+PHP viene del PPA de Ondřej dentro de la imagen `sail-8.5/app`. Para coger un parche nuevo hay que reconstruirla sin caché:
+
+```bash
+sail build --no-cache laravel.test && sail up -d laravel.test
+# con docker compose directamente, hay que pasar el usuario/grupo (si no, falla `groupadd`):
+WWWGROUP=$(id -g) WWWUSER=$(id -u) docker compose build --no-cache laravel.test
+WWWGROUP=$(id -g) WWWUSER=$(id -u) docker compose up -d laravel.test
+docker exec cv-laravel.test-1 php -v   # comprobar versión
+```
+
+Ajustes de PHP propios (montados desde `compose.yaml`): `docker/php/*.ini`.
+
 ### Flujo de trabajo típico
 
 1. `sail up -d` (si no está corriendo)
@@ -209,6 +223,11 @@ En `resources/css/app.css`, variables en `:root`:
 ---
 
 ## Historial de cambios
+
+### Seguridad — PHP2Shell (oct 2026)
+- PHP actualizado a 8.5.12 por CVE-2026-109618 / CVE-2026-109619 (RCE sin autenticación en el motor de PHP)
+- Mitigación extra: `session.upload_progress.enabled=0` en `docker/php/99-php2shell.ini`
+- `restart: unless-stopped` en los servicios de `compose.yaml`
 
 ### v0.4 — UI refinements
 - **NavBar**: indicador de sección activa con `IntersectionObserver` (línea azul bajo enlace activo)
